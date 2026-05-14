@@ -22,6 +22,8 @@ public class ExpenseResponse {
     private BigDecimal amount;
     private ExpenseType type;
     private SplitStrategyEnum splitStrategy;
+    private String billingId;
+    private String billingName;
     private String paidById;
     private String paidByName;
     private List<SplitShareExpenseResponse> shares;

@@ -9,9 +9,12 @@ import com.allobank.test.entity.Billing;
 import com.allobank.test.entity.Expense;
 import com.allobank.test.entity.ExpenseShare;
 import com.allobank.test.entity.Participant;
+import com.allobank.test.entity.projection.ExpenseDetailProjection;
+import com.allobank.test.entity.projection.ExpenseShareProjection;
 import com.allobank.test.exception.BusinessException;
 import com.allobank.test.repository.BillingRepository;
 import com.allobank.test.repository.ExpenseRepository;
+import com.allobank.test.repository.ExpenseShareRepository;
 import com.allobank.test.repository.ParticipantRepository;
 import com.allobank.test.service.ExpenseService;
 import com.allobank.test.util.SplitStrategyUtil;
@@ -35,16 +38,21 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final BillingRepository billingRepository;
     private final ParticipantRepository participantRepository;
     private final ExpenseRepository expenseRepository;
+    private final ExpenseShareRepository expenseShareRepository;
 
     @Transactional
     @Override
     public ExpenseResponse createExpense(Long billingId, ExpenseCreateRequest request) {
         log.info("entering addExpense with billingId {}", billingId);
         if(request.getSplitStrategy().equals(SplitStrategyEnum.EXACT) || request.getSplitStrategy().equals(SplitStrategyEnum.PERCENTAGE)){
-            throw new BusinessException(
-                    ErrorCode.FIELD_REQUIRED,
-                    String.format("Share is required for strategy: %s", request.getSplitStrategy())
-            );
+            boolean anyNull = request.getSplits().stream()
+                    .anyMatch(e -> e.getShare() == null);
+            if (anyNull) {
+                throw new BusinessException(
+                        ErrorCode.FIELD_REQUIRED,
+                        String.format("Share is required for strategy: %s", request.getSplitStrategy())
+                );
+            }
         }
         Billing billing = billingRepository.findByIdWithParticipants(billingId).orElseThrow(
                 () -> new BusinessException(ErrorCode.NOT_FOUND,
@@ -83,27 +91,73 @@ public class ExpenseServiceImpl implements ExpenseService {
         };
 
         expense.getShares().addAll(shares);
-        return toResponse(expenseRepository.save(expense));
+        Expense saved = expenseRepository.save(expense);
+        return createResponse(saved);
     }
 
-    private ExpenseResponse toResponse(Expense e) {
+    @Override
+    public List<ExpenseResponse> list(Long billingId) {
+        Billing billing = billingRepository.findByIdWithParticipants(billingId).orElseThrow(
+                () -> new BusinessException(ErrorCode.NOT_FOUND,
+                        String.format("Billing id %d not found", billingId)));
+        return expenseRepository.findByBillingId(billingId).stream()
+                .map(this::listResponse)
+                .toList();
+    }
+
+    @Override
+    public ExpenseResponse detail(Long billingId, Long expenseId) {
+        ExpenseDetailProjection projection = expenseRepository
+                .findDetailById(expenseId, billingId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND,
+                        "Expense %d not found in billing %d".formatted(expenseId, billingId)));
+
+        List<ExpenseShareProjection> shares = expenseShareRepository
+                .findShareProjectionsByExpenseId(expenseId);
+
+        return detailResponse(projection, shares);
+    }
+
+    private ExpenseResponse createResponse(Expense e) {
         return ExpenseResponse.builder()
                 .id(String.valueOf(e.getId()))
                 .description(e.getDescription())
                 .amount(e.getAmount())
                 .type(e.getExpenseType())
                 .splitStrategy(e.getSplitStrategy())
-                .paidById(String.valueOf(e.getPaidBy().getId()))
-                .paidByName(e.getPaidBy().getName())
-                .shares(e.getShares().stream()
+                .createdAt(String.valueOf(e.getCreatedAt()))
+                .build();
+    }
+
+    private ExpenseResponse listResponse(Expense e) {
+        return ExpenseResponse.builder()
+                .id(String.valueOf(e.getId()))
+                .description(e.getDescription())
+                .amount(e.getAmount())
+                .type(e.getExpenseType())
+                .splitStrategy(e.getSplitStrategy())
+                .build();
+    }
+
+    private ExpenseResponse detailResponse(ExpenseDetailProjection p,
+                                             List<ExpenseShareProjection> shares) {
+        return ExpenseResponse.builder()
+                .id(String.valueOf(p.getId()))
+                .description(p.getDescription())
+                .amount(p.getAmount())
+                .type(p.getExpenseType())
+                .splitStrategy(p.getSplitStrategy())
+                .billingId(String.valueOf(p.getBillingId()))
+                .billingName(p.getBillingName())
+                .paidByName(p.getPaidByName())
+                .shares(shares.stream()
                         .map(s -> SplitShareExpenseResponse.builder()
-                                .participantId(String.valueOf(s.getParticipant().getId()))
-                                .participantName(s.getParticipant().getName())
+                                .participantName(s.getParticipantName())
                                 .amount(s.getAmount())
                                 .percentageShare(s.getPercentageShare())
                                 .build())
                         .toList())
-                .createdAt(String.valueOf(e.getCreatedAt()))
+                .createdAt(String.valueOf(p.getCreatedAt()))
                 .build();
     }
 }

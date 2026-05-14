@@ -1,15 +1,20 @@
 package com.allobank.test.service.impl;
 
+import com.allobank.test.constant.ErrorCode;
 import com.allobank.test.dto.billing.BillingCreateRequest;
 import com.allobank.test.dto.billing.BillingCreateResponse;
+import com.allobank.test.dto.billing.BillingResponse;
+import com.allobank.test.dto.billing.ParticipantResponse;
 import com.allobank.test.entity.Billing;
 import com.allobank.test.entity.Participant;
+import com.allobank.test.exception.BusinessException;
 import com.allobank.test.repository.BillingRepository;
 import com.allobank.test.repository.ParticipantRepository;
 import com.allobank.test.service.BillingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -45,6 +50,49 @@ public class BillingServiceImpl implements BillingService {
         return BillingCreateResponse.builder()
                 .id(savedBill.getId().toString())
                 .billingName(savedBill.getName())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<BillingResponse> list() {
+        return billingRepository.findAll().stream()
+                .map(this::listResponse)
+                .toList();
+    }
+
+    @Override
+    public BillingResponse detail(Long billingId) {
+        Billing billing = billingRepository.findByIdWithParticipants(billingId)
+                .orElseThrow(() -> new BusinessException(
+                        ErrorCode.NOT_FOUND,
+                        String.format("Billing id %d not found", billingId)));
+        return detailResponse(billing);
+    }
+
+    private BillingResponse listResponse(Billing b) {
+        return BillingResponse.builder()
+                .id(String.valueOf(b.getId()))
+                .name(b.getName())
+                .createdAt(String.valueOf(b.getCreatedAt()))
+                .build();
+    }
+
+    private BillingResponse detailResponse(Billing b){
+        return BillingResponse.builder()
+                .id(String.valueOf(b.getId()))
+                .name(b.getName())
+                .participants(b.getParticipants().stream()
+                        .map(this::toParticipantResponse)
+                        .toList())
+                .createdAt(String.valueOf(b.getCreatedAt()))
+                .build();
+    }
+
+    private ParticipantResponse toParticipantResponse(Participant p) {
+        return ParticipantResponse.builder()
+                .id(String.valueOf(p.getId()))
+                .name(p.getName())
                 .build();
     }
 }
