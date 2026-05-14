@@ -5,7 +5,6 @@ import com.allobank.test.constant.SplitStrategyEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public class Expense extends BaseModel{
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "billing_id", nullable = false)
-    private Billing group;
+    private Billing billing;
 
     @OneToMany(mappedBy = "expense", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
