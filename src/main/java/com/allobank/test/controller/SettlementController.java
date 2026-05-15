@@ -20,12 +20,7 @@ public class SettlementController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(settlementService.createSettlement(billingId));
     }
-
-    @GetMapping("/latest")
-    public ResponseEntity<SettlementResponse> getLatest(@PathVariable Long billingId) {
-        return ResponseEntity.ok(settlementService.latestSettlement(billingId));
-    }
-
+    
     @GetMapping("/history")
     public ResponseEntity<List<SettlementResponse>> getHistory(@PathVariable Long billingId) {
         return ResponseEntity.ok(settlementService.historySettlementPerBill(billingId));

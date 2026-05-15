@@ -30,7 +30,7 @@ public class ExpenseShare extends BaseModel{
     @JoinColumn(name = "participant_id", nullable = false)
     private Participant participant;
 
-    @Column(name = "amount", nullable = false, precision = 19, scale = 4)
+    @Column(name = "amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
     @Column(name = "percentage_share", precision = 5, scale = 2)

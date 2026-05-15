@@ -1,5 +1,6 @@
 package com.allobank.test.dto.settlementtransaction;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,10 +12,9 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SettlementTransactionResponse {
-    private Long fromParticipantId;
     private String fromParticipantName;
-    private Long toParticipantId;
     private String toParticipantName;
     private BigDecimal amount;
 }
