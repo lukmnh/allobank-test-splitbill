@@ -33,4 +33,15 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     Optional<ExpenseDetailProjection> findDetailById(
             @Param("expenseId") Long expenseId,
             @Param("billingId") Long billingId);
+
+    @Query("""
+        SELECT e 
+        FROM Expense e
+        JOIN FETCH e.paidBy
+        JOIN FETCH e.shares s
+        JOIN FETCH s.participant
+        WHERE e.billing.id = :billingId
+        ORDER BY e.createdAt ASC
+    """)
+    List<Expense> findByBillingIdWithShares(@Param("billingId") Long billingId);
 }

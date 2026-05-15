@@ -3,6 +3,7 @@ package com.allobank.test.dto.settlement;
 import com.allobank.test.dto.expense.ExpenseResponse;
 import com.allobank.test.dto.payment.PaymentResponse;
 import com.allobank.test.dto.settlementtransaction.SettlementTransactionResponse;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,10 +18,10 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SettlementResponse {
     private String settlementId;
-    private String groupId;
-    private String groupName;
+    private String billingName;
     private BigDecimal totalExpenses;
     private String serviceChargePct;
     private BigDecimal serviceChargeAmount;

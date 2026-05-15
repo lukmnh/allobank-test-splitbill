@@ -6,6 +6,5 @@ import java.util.List;
 
 public interface SettlementService {
     SettlementResponse createSettlement(Long billingId);
-    SettlementResponse latestSettlement(Long billingId);
     List<SettlementResponse> historySettlementPerBill(Long billingId);
 }
