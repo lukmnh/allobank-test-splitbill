@@ -31,7 +31,7 @@ public class Payment extends BaseModel {
     @JoinColumn(name = "payee_id", nullable = false)
     private Participant payee;
 
-    @Column(nullable = false, precision = 19, scale = 4)
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

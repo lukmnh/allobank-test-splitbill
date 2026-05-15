@@ -64,7 +64,7 @@ public class SplitStrategyUtil {
             BigDecimal amount;
 
             if (i == entries.size() - 1) {
-                amount = expense.getAmount().subtract(running).setScale(4, RoundingMode.HALF_UP);
+                amount = expense.getAmount().subtract(running).setScale(2, RoundingMode.HALF_UP);
             } else {
                 amount = expense.getAmount()
                         .multiply(pct)
@@ -96,7 +96,7 @@ public class SplitStrategyUtil {
 
         return req.getSplits().stream()
                 .map(e -> buildShare(expense, map.get(e.getParticipantId()),
-                        e.getShare().setScale(4, RoundingMode.HALF_UP), null))
+                        e.getShare().setScale(2, RoundingMode.HALF_UP), null))
                 .toList();
     }
 

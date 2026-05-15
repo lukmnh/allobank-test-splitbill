@@ -25,7 +25,7 @@ public class Expense extends BaseModel{
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false, precision = 19, scale = 4)
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)

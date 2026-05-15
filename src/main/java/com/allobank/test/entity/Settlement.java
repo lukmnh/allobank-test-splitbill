@@ -25,11 +25,10 @@ public class Settlement extends BaseModel {
     @JoinColumn(name = "billing_id", nullable = false)
     private Billing billing;
 
-    @Column(name = "total_expenses", nullable = false, precision = 19, scale = 4)
+    @Column(name = "total_expenses", nullable = false, precision = 19, scale = 2)
     private BigDecimal totalExpenses;
 
-
-    @Column(name = "grand_total", nullable = false, precision = 19, scale = 4)
+    @Column(name = "grand_total", nullable = false, precision = 19, scale = 2)
     private BigDecimal grandTotal;
 
     @OneToMany(mappedBy = "settlement", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

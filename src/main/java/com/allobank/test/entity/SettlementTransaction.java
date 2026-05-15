@@ -34,6 +34,6 @@ public class SettlementTransaction extends BaseModel {
     @JoinColumn(name = "to_participant_id", nullable = false)
     private Participant toParticipant;
 
-    @Column(nullable = false, precision = 19, scale = 4)
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 }

@@ -76,7 +76,7 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         Expense expense = Expense.builder()
                 .description(request.getDescription())
-                .amount(request.getAmount().setScale(4, RoundingMode.HALF_UP))
+                .amount(request.getAmount().setScale(2, RoundingMode.HALF_UP))
                 .expenseType(request.getType())
                 .splitStrategy(request.getSplitStrategy())
                 .paidBy(paidBy)
